@@ -26,6 +26,7 @@
     <pre id="log"></pre>
     <p><small>Based on the code snippets from <a href="https://w3c.github.io/web-nfc/#examples">specification draft</a>.</small></p>
 
+    <script>
 sync function readTag() {
   if ("NDEFReader" in window) {
     const ndef = new NDEFReader();
@@ -51,6 +52,6 @@ function consoleLog(data) {
   var logElement = document.getElementById('log');
   logElement.innerHTML += data + '\n';
 }
-    
+    </script>
     </body>
 </html>
