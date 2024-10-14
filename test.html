@@ -27,7 +27,7 @@
     <p><small>Based on the code snippets from <a href="https://w3c.github.io/web-nfc/#examples">specification draft</a>.</small></p>
 
     <script>
-sync function readTag() {
+async function readTag() {
   if ("NDEFReader" in window) {
     const ndef = new NDEFReader();
     try {
