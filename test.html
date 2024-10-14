@@ -1,5 +1,53 @@
-<html>
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NFC 读取示例</title>
+</head>
 <body>
-<button>点击</button>
+    <h1>NFC 数据读取</h1>
+    <button id="readNFC">读取 NFC 数据</button>
+    <p id="output"></p>
+
+    <script>
+        document.getElementById('readNFC').addEventListener('click', async () => {
+            // 检查浏览器是否支持 Web NFC
+            if ('NDEFReader' in window) {
+                const ndef = new NDEFReader();
+                
+                try {
+                    // 开始读取 NFC 标签
+                    await ndef.scan();
+                    console.log("扫描中...");
+
+                    ndef.addEventListener("reading", (event) => {
+                        const message = event.message;
+                        let output = '';
+
+                        for (const record of message.records) {
+                            // 处理不同类型的 NFC 记录
+                            if (record.recordType === "text") {
+                                const decoder = new TextDecoder(record.encoding);
+                                output += `文本: ${decoder.decode(record.data)}\n`;
+                            } else if (record.recordType === "url") {
+                                const url = new URL(record.data);
+                                output += `网址: ${url.href}\n`;
+                            }
+                            // 可以处理其他类型的记录
+                        }
+
+                        document.getElementById('output').textContent = output;
+                    });
+
+                } catch (error) {
+                    console.error("读取 NFC 标签时出错: " + error);
+                    document.getElementById('output').textContent = "读取失败: " + error.message;
+                }
+            } else {
+                alert("此浏览器不支持 Web NFC API");
+            }
+        });
+    </script>
 </body>
 </html>
