@@ -18,48 +18,39 @@
     </style>
 </head>
 <body>
-    <h1>Web NFC 示例</h1>
-    <button id="readNFC">读取 NFC 标签</button>
-    <div id="output"></div>
 
-    <script>
-        document.getElementById('readNFC').addEventListener('click', async () => {
-            if ('NDEFReader' in window) {
-                const ndef = new NDEFReader();
+    <p>
+      <button onclick="readTag()">Test NFC Read</button>
+      <button onclick="writeTag()">Test NFC Write</button>
+    </p>
+    <pre id="log"></pre>
+    <p><small>Based on the code snippets from <a href="https://w3c.github.io/web-nfc/#examples">specification draft</a>.</small></p>
 
-                // 尝试请求 NFC 权限
-                try {
-                    await ndef.scan();
-                    console.log("扫描中...");
+sync function readTag() {
+  if ("NDEFReader" in window) {
+    const ndef = new NDEFReader();
+    try {
+      await ndef.scan();
+      ndef.onreading = event => {
+        const decoder = new TextDecoder();
+        for (const record of event.message.records) {
+          consoleLog("Record type:  " + record.recordType);
+          consoleLog("MIME type:    " + record.mediaType);
+          consoleLog("=== data ===\n" + decoder.decode(record.data));
+        }
+      }
+    } catch(error) {
+      consoleLog(error);
+    }
+  } else {
+    consoleLog("Web NFC is not supported.");
+  }
+}
 
-                    ndef.addEventListener("reading", (event) => {
-                        const message = event.message;
-                        let output = '';
-
-                        for (const record of message.records) {
-                            if (record.recordType === "text") {
-                                const decoder = new TextDecoder(record.encoding);
-                                output += `文本: ${decoder.decode(record.data)}\n`;
-                            } else if (record.recordType === "url") {
-                                const url = new URL(record.data);
-                                output += `网址: ${url.href}\n`;
-                            }
-                        }
-
-                        document.getElementById('output').textContent = output;
-                    });
-
-                } catch (error) {
-                    if (error.name === "NotAllowedError") {
-                        document.getElementById('output').textContent = "权限被拒绝，请允许访问 NFC。";
-                    } else {
-                        document.getElementById('output').textContent = "读取失败: " + error.message;
-                    }
-                }
-            } else {
-                alert("此浏览器不支持 Web NFC API");
-            }
-        });
-    </script>
-</body>
+function consoleLog(data) {
+  var logElement = document.getElementById('log');
+  logElement.innerHTML += data + '\n';
+}
+    
+    </body>
 </html>
